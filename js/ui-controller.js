@@ -355,36 +355,18 @@ class UIController {
      * Zoom in
      */
     zoomIn() {
-        const camera = this.familyTree.camera;
-        const distance = camera.position.length();
-        const newDistance = Math.max(100, distance * 0.8);
-        
-        new TWEEN.Tween(camera.position)
-            .to({
-                x: camera.position.x * (newDistance / distance),
-                y: camera.position.y * (newDistance / distance),
-                z: camera.position.z * (newDistance / distance)
-            }, 300)
-            .easing(TWEEN.Easing.Cubic.Out)
-            .start();
+        if (this.familyTree && this.familyTree.zoomIn) {
+            this.familyTree.zoomIn();
+        }
     }
 
     /**
      * Zoom out
      */
     zoomOut() {
-        const camera = this.familyTree.camera;
-        const distance = camera.position.length();
-        const newDistance = Math.min(5000, distance * 1.2);
-        
-        new TWEEN.Tween(camera.position)
-            .to({
-                x: camera.position.x * (newDistance / distance),
-                y: camera.position.y * (newDistance / distance),
-                z: camera.position.z * (newDistance / distance)
-            }, 300)
-            .easing(TWEEN.Easing.Cubic.Out)
-            .start();
+        if (this.familyTree && this.familyTree.zoomOut) {
+            this.familyTree.zoomOut();
+        }
     }
 
     /**
