@@ -52,12 +52,12 @@ class FamilyTree2D {
     // Zoom/pan container
     this.zoomLayer = this.svg.append('g');
 
-    this.svg.call(
-      d3
-        .zoom()
-        .scaleExtent([0.25, 3])
-        .on('zoom', (event) => this.zoomLayer.attr('transform', event.transform))
-    );
+    this.zoomBehavior = d3
+      .zoom()
+      .scaleExtent([0.25, 3])
+      .on('zoom', (event) => this.zoomLayer.attr('transform', event.transform));
+
+    this.svg.call(this.zoomBehavior);
   }
 
   // Build D3 hierarchy from parent relationships
@@ -244,7 +244,7 @@ class FamilyTree2D {
       this.svg
         .transition()
         .duration(1000)
-        .call(this.svg.zoom().transform, transform);
+        .call(this.zoomBehavior.transform, transform);
       
       // Highlight the node
       this.zoomLayer.selectAll('.ft-node')
@@ -262,11 +262,20 @@ class FamilyTree2D {
     this.svg
       .transition()
       .duration(500)
-      .call(this.svg.zoom().transform, d3.zoomIdentity);
-    
+      .call(this.zoomBehavior.transform, d3.zoomIdentity);
+
     // Remove highlights
     this.zoomLayer.selectAll('.ft-node')
       .classed('highlighted', false);
+  }
+
+  // Zoom controls for UIController
+  zoomIn() {
+    this.svg.transition().duration(300).call(this.zoomBehavior.scaleBy, 1.2);
+  }
+
+  zoomOut() {
+    this.svg.transition().duration(300).call(this.zoomBehavior.scaleBy, 0.8);
   }
 
   // Get person relatives (for details panel)

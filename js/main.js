@@ -32,11 +32,7 @@ class FamilyTreeApp {
             await this.loadInitialData();
             
             // Initialize family tree visualization
-            if (typeof THREE !== 'undefined' && THREE.OrbitControls) {
-                this.initializeFamilyTree();
-            } else {
-                throw new Error('Three.js or OrbitControls not loaded. Please refresh the page.');
-            }
+            this.initializeFamilyTree();
             
             // Initialize UI controller
             this.initializeUIController();
@@ -198,31 +194,15 @@ class FamilyTreeApp {
      * Initialize family tree visualization
      */
     initializeFamilyTree() {
-        // Prefer 2D renderer for high-quality Material 3 visuals; fallback to 3D if needed
-        try {
-            if (window.FamilyTree2D) {
-                const div2d = document.getElementById('family-tree-2d');
-                div2d.style.display = 'block';
-                const canvas3d = document.getElementById('family-tree-canvas');
-                canvas3d.style.display = 'none';
-                this.familyTree = new FamilyTree2D('family-tree-2d', this.currentData);
-            } else {
-                const canvas3d = document.getElementById('family-tree-canvas');
-                canvas3d.style.display = 'block';
-                this.familyTree = new FamilyTree('family-tree-canvas', this.currentData);
-            }
-        } catch (e) {
-            console.warn('2D renderer failed, falling back to 3D:', e);
-            const canvas3d = document.getElementById('family-tree-canvas');
-            canvas3d.style.display = 'block';
-            this.familyTree = new FamilyTree('family-tree-canvas', this.currentData);
-        }
-        
+        const div2d = document.getElementById('family-tree-2d');
+        div2d.style.display = 'block';
+        this.familyTree = new FamilyTree2D('family-tree-2d', this.currentData);
+
         // Override event handlers
         this.familyTree.onPersonSelected = (person) => {
             this.uiController.showPersonDetails(person);
         };
-        
+
         this.familyTree.onMarriageSelected = (marriageData) => {
             this.showMarriageDetails(marriageData);
         };
@@ -361,16 +341,8 @@ class FamilyTreeApp {
         localStorage.setItem('theme', theme);
         
         // Re-render family tree if it exists to update colors
-        if (this.familyTree) {
-            if (this.familyTree.updateTheme) {
-                // 2D tree
-                this.familyTree.updateTheme();
-            } else if (this.familyTree.render) {
-                // 3D tree
-                setTimeout(() => {
-                    this.familyTree.render();
-                }, 100);
-            }
+        if (this.familyTree && this.familyTree.updateTheme) {
+            this.familyTree.updateTheme();
         }
     }
 
