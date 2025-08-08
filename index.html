@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soliman Dawood Family Tree (1795 to Date)</title>
+    
+    <!-- Material 3 Design System -->
+    <link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+    
+    <!-- Three.js with OrbitControls -->
+    <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    
+    <!-- TWEEN.js for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+    
+    <!-- D3.js for layout calculations -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="mdc-top-app-bar">
+        <div class="mdc-top-app-bar__row">
+            <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
+                <span class="mdc-top-app-bar__title">Soliman Dawood Family Tree</span>
+            </section>
+            <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end">
+                <button class="mdc-icon-button material-symbols-outlined mdc-top-app-bar__action-item" 
+                        id="theme-toggle" title="Toggle Dark/Light Mode">dark_mode</button>
+                <button class="mdc-icon-button material-symbols-outlined mdc-top-app-bar__action-item" 
+                        id="search-btn" title="Search">search</button>
+                <button class="mdc-icon-button material-symbols-outlined mdc-top-app-bar__action-item" 
+                        id="admin-btn" title="Admin Panel">admin_panel_settings</button>
+                <button class="mdc-icon-button material-symbols-outlined mdc-top-app-bar__action-item" 
+                        id="help-btn" title="Help">help</button>
+            </section>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Search Panel -->
+        <div class="search-panel" id="search-panel">
+            <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--with-leading-icon">
+                <span class="mdc-notched-outline">
+                    <span class="mdc-notched-outline__leading"></span>
+                    <span class="mdc-notched-outline__notch">
+                        <span class="mdc-floating-label" id="search-label">Search for a person...</span>
+                    </span>
+                    <span class="mdc-notched-outline__trailing"></span>
+                </span>
+                <span class="mdc-text-field__ripple"></span>
+                <i class="material-symbols-outlined mdc-text-field__icon mdc-text-field__icon--leading">search</i>
+                <input type="text" class="mdc-text-field__input" id="search-input" aria-labelledby="search-label">
+            </div>
+            <div class="search-results" id="search-results"></div>
+        </div>
+
+        <!-- Family Tree Canvas -->
+        <div class="tree-container">
+            <!-- 2D and 3D containers (2D preferred) -->
+            <div id="family-tree-2d" aria-label="Family tree"></div>
+            <canvas id="family-tree-canvas" aria-label="Family tree 3D" style="display:none;"></canvas>
+            
+            <!-- Navigation Controls -->
+            <div class="navigation-controls">
+                <button class="mdc-icon-button material-symbols-outlined" id="zoom-in" title="Zoom In">zoom_in</button>
+                <button class="mdc-icon-button material-symbols-outlined" id="zoom-out" title="Zoom Out">zoom_out</button>
+                <button class="mdc-icon-button material-symbols-outlined" id="reset-view" title="Reset View">center_focus_strong</button>
+                <button class="mdc-icon-button material-symbols-outlined" id="fullscreen" title="Fullscreen">fullscreen</button>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div class="loading-indicator" id="loading-indicator">
+                <div class="mdc-circular-progress" style="width: 48px; height: 48px;">
+                    <div class="mdc-circular-progress__determinate-container">
+                        <svg class="mdc-circular-progress__determinate-circle-graphic" viewBox="0 0 48 48">
+                            <circle class="mdc-circular-progress__determinate-track" cx="24" cy="24" r="18" stroke-width="4"/>
+                            <circle class="mdc-circular-progress__determinate-circle" cx="24" cy="24" r="18" stroke-width="4"/>
+                        </svg>
+                    </div>
+                    <div class="mdc-circular-progress__indeterminate-container">
+                        <div class="mdc-circular-progress__spinner-layer">
+                            <div class="mdc-circular-progress__circle-clipper mdc-circular-progress__circle-left">
+                                <svg class="mdc-circular-progress__indeterminate-circle-graphic" viewBox="0 0 48 48">
+                                    <circle cx="24" cy="24" r="18" stroke-width="4"/>
+                                </svg>
+                            </div>
+                            <div class="mdc-circular-progress__gap-patch">
+                                <svg class="mdc-circular-progress__indeterminate-circle-graphic" viewBox="0 0 48 48">
+                                    <circle cx="24" cy="24" r="18" stroke-width="4"/>
+                                </svg>
+                            </div>
+                            <div class="mdc-circular-progress__circle-clipper mdc-circular-progress__circle-right">
+                                <svg class="mdc-circular-progress__indeterminate-circle-graphic" viewBox="0 0 48 48">
+                                    <circle cx="24" cy="24" r="18" stroke-width="4"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p>Loading family tree...</p>
+            </div>
+        </div>
+
+        <!-- Person Details Panel -->
+        <div class="person-details-panel" id="person-details-panel">
+            <div class="panel-header">
+                <h3 id="person-name">Person Details</h3>
+                <button class="mdc-icon-button material-symbols-outlined" id="close-details">close</button>
+            </div>
+            <div class="panel-content" id="person-details-content">
+                <!-- Person details will be populated here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Admin Panel Modal -->
+    <div class="modal-overlay" id="admin-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Admin Panel</h2>
+                <button class="mdc-icon-button material-symbols-outlined" id="close-admin">close</button>
+            </div>
+            <div class="modal-body">
+                <div class="admin-tabs">
+                    <button class="mdc-tab mdc-tab--active" data-tab="add-person">
+                        <span class="mdc-tab__content">
+                            <span class="mdc-tab__text-label">Add Person</span>
+                        </span>
+                        <span class="mdc-tab-indicator mdc-tab-indicator--active">
+                            <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+                        </span>
+                    </button>
+                    <button class="mdc-tab" data-tab="edit-person">
+                        <span class="mdc-tab__content">
+                            <span class="mdc-tab__text-label">Edit Person</span>
+                        </span>
+                        <span class="mdc-tab-indicator">
+                            <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+                        </span>
+                    </button>
+                    <button class="mdc-tab" data-tab="manage-relationships">
+                        <span class="mdc-tab__content">
+                            <span class="mdc-tab__text-label">Relationships</span>
+                        </span>
+                        <span class="mdc-tab-indicator">
+                            <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+                        </span>
+                    </button>
+                </div>
+                
+                <div class="tab-content" id="add-person-content">
+                    <!-- Add Person Form -->
+                    <form id="add-person-form">
+                        <div class="form-row">
+                            <div class="mdc-text-field mdc-text-field--outlined">
+                                <input type="text" class="mdc-text-field__input" id="new-person-name" required>
+                                <span class="mdc-notched-outline">
+                                    <span class="mdc-notched-outline__leading"></span>
+                                    <span class="mdc-notched-outline__notch">
+                                        <span class="mdc-floating-label">Full Name</span>
+                                    </span>
+                                    <span class="mdc-notched-outline__trailing"></span>
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="mdc-text-field mdc-text-field--outlined">
+                                <input type="text" class="mdc-text-field__input" id="new-person-alt-names">
+                                <span class="mdc-notched-outline">
+                                    <span class="mdc-notched-outline__leading"></span>
+                                    <span class="mdc-notched-outline__notch">
+                                        <span class="mdc-floating-label">Alternative Names (comma-separated)</span>
+                                    </span>
+                                    <span class="mdc-notched-outline__trailing"></span>
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="mdc-form-field">
+                                <div class="mdc-radio">
+                                    <input class="mdc-radio__native-control" type="radio" name="gender" value="M" id="gender-male">
+                                    <div class="mdc-radio__background">
+                                        <div class="mdc-radio__outer-circle"></div>
+                                        <div class="mdc-radio__inner-circle"></div>
+                                    </div>
+                                </div>
+                                <label for="gender-male">Male</label>
+                            </div>
+                            <div class="mdc-form-field">
+                                <div class="mdc-radio">
+                                    <input class="mdc-radio__native-control" type="radio" name="gender" value="F" id="gender-female">
+                                    <div class="mdc-radio__background">
+                                        <div class="mdc-radio__outer-circle"></div>
+                                        <div class="mdc-radio__inner-circle"></div>
+                                    </div>
+                                </div>
+                                <label for="gender-female">Female</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="mdc-text-field mdc-text-field--outlined">
+                                <input type="number" class="mdc-text-field__input" id="new-person-birth-year">
+                                <span class="mdc-notched-outline">
+                                    <span class="mdc-notched-outline__leading"></span>
+                                    <span class="mdc-notched-outline__notch">
+                                        <span class="mdc-floating-label">Birth Year</span>
+                                    </span>
+                                    <span class="mdc-notched-outline__trailing"></span>
+                                </span>
+                            </div>
+                            <div class="mdc-text-field mdc-text-field--outlined">
+                                <input type="number" class="mdc-text-field__input" id="new-person-death-year">
+                                <span class="mdc-notched-outline">
+                                    <span class="mdc-notched-outline__leading"></span>
+                                    <span class="mdc-notched-outline__notch">
+                                        <span class="mdc-floating-label">Death Year</span>
+                                    </span>
+                                    <span class="mdc-notched-outline__trailing"></span>
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="mdc-button mdc-button--raised">
+                                <span class="mdc-button__label">Add Person</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="tab-content hidden" id="edit-person-content">
+                    <!-- Edit Person Form -->
+                    <p>Select a person from the tree to edit their details.</p>
+                </div>
+                
+                <div class="tab-content hidden" id="manage-relationships-content">
+                    <!-- Relationship Management -->
+                    <p>Manage family relationships between people.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal-overlay" id="help-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>How to Use the Family Tree</h2>
+                <button class="mdc-icon-button material-symbols-outlined" id="close-help">close</button>
+            </div>
+            <div class="modal-body">
+                <h3>Navigation</h3>
+                <ul>
+                    <li><strong>Pan:</strong> Click and drag to move around the tree</li>
+                    <li><strong>Zoom:</strong> Use mouse wheel or zoom buttons</li>
+                    <li><strong>Search:</strong> Click the search icon to find specific people</li>
+                    <li><strong>Details:</strong> Click on any person to view their details</li>
+                </ul>
+                
+                <h3>Understanding the Tree</h3>
+                <ul>
+                    <li>Each circle represents a person</li>
+                    <li>Lines connect parents to children</li>
+                    <li>Marriage nodes connect spouses</li>
+                    <li>Generations are arranged vertically</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Material 3 Design System -->
+    <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+    
+    <!-- Application Scripts -->
+    <script src="js/data-converter.js"></script>
+    <script src="js/cognitive-search.js"></script>
+    <script src="js/family-tree.js"></script>
+    <script src="js/family-tree-2d.js"></script>
+    <script src="js/ui-controller.js"></script>
+    <script src="js/admin-panel.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
