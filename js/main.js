@@ -206,6 +206,11 @@ class FamilyTreeApp {
         this.familyTree.onMarriageSelected = (marriageData) => {
             this.showMarriageDetails(marriageData);
         };
+
+        // Focus on the newly added branch (Mariam Mamdouh Amin) on initial load
+        setTimeout(() => {
+            this.familyTree.focusOnPerson('P-000895');
+        }, 0);
     }
 
     /**
