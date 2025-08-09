@@ -31,8 +31,8 @@ class UIController {
         // Loading indicator
         this.loadingIndicator = document.getElementById('loading-indicator');
         
-        // Initialize cognitive search
-        this.cognitiveSearch = new CognitiveSearch();
+        // Initialize fuzzy search (Arabic + English transliterations)
+        this.fuzzySearch = new FuzzySearch();
         
         this.setupEventListeners();
         this.setupMaterialComponents();
@@ -100,27 +100,25 @@ class UIController {
     }
 
     /**
-     * Handle search input with cognitive search
+     * Handle search input with fuzzy search
      */
     handleSearch(event) {
         const query = event.target.value.trim();
-        
+
         if (query.length < 2) {
             this.clearSearchResults();
             return;
         }
-        
-        // Use cognitive search for better results
+
         const people = this.familyTree.getAllPeople();
-        const searchResults = this.cognitiveSearch.search(query, people);
-        
-        // Convert to format expected by display function
+        const searchResults = this.fuzzySearch.search(query, people);
+
         const results = searchResults.map(result => ({
             ...result.person,
             matchScore: result.score,
             matchType: result.matchType
         }));
-        
+
         this.displaySearchResults(results);
     }
 
@@ -169,7 +167,29 @@ class UIController {
             if (person.deathYear) details.push(`d. ${person.deathYear}`);
             if (person.gender) details.push(person.gender === 'M' ? 'Male' : 'Female');
             detailsSpan.textContent = details.join(' • ');
-            
+
+            resultItem.appendChild(nameSpan);
+            resultItem.appendChild(detailsSpan);
+
+            const relatives = this.familyTree.getPersonRelatives(person.id);
+            const info = [];
+            if (relatives.father || relatives.mother) {
+                const parents = [
+                    relatives.father ? relatives.father.name : null,
+                    relatives.mother ? relatives.mother.name : null
+                ].filter(Boolean).join(' / ');
+                if (parents) info.push(`Parents: ${parents}`);
+            }
+            if (relatives.spouses.length > 0) {
+                info.push(`Spouses: ${relatives.spouses.map(s => s.name).join(', ')}`);
+            }
+            if (info.length > 0) {
+                const infoSpan = document.createElement('span');
+                infoSpan.className = 'person-relatives';
+                infoSpan.textContent = info.join(' | ');
+                resultItem.appendChild(infoSpan);
+            }
+
             // Add match type and score if available
             if (person.matchType) {
                 const matchSpan = document.createElement('span');
@@ -177,9 +197,6 @@ class UIController {
                 matchSpan.textContent = `${person.matchType} (${Math.round(person.matchScore * 100)}%)`;
                 resultItem.appendChild(matchSpan);
             }
-            
-            resultItem.appendChild(nameSpan);
-            resultItem.appendChild(detailsSpan);
             
             resultItem.addEventListener('click', () => this.selectSearchResult(person.id));
             resultItem.addEventListener('mouseenter', () => this.highlightSearchResult(index));

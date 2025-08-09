@@ -418,6 +418,17 @@ body {
     display: block;
 }
 
+#tree-minimap {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 150px;
+    height: 100px;
+    border: 1px solid var(--md-sys-color-outline);
+    background: var(--md-sys-color-surface);
+    z-index: 10;
+}
+
 /* FamilyTree2D node styles */
 .ft-node text {
     font-family: "Noto Naskh Arabic", "Segoe UI", Roboto, Arial, sans-serif;

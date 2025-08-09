@@ -517,7 +517,26 @@ class DataConverter {
             if (person.spouseIds) {
                 person.spouseIds = person.spouseIds.filter(id => id !== person.id);
             }
+
+            // Detect ancestor cycles
+            if (person.fatherId && this.hasAncestor(person.id, person.fatherId)) {
+                person.fatherId = null;
+            }
+            if (person.motherId && this.hasAncestor(person.id, person.motherId)) {
+                person.motherId = null;
+            }
         }
+    }
+
+    hasAncestor(descendantId, currentId, visited = new Set()) {
+        if (!currentId) return false;
+        if (currentId === descendantId) return true;
+        if (visited.has(currentId)) return false;
+        visited.add(currentId);
+        const p = this.people.get(currentId);
+        if (!p) return false;
+        return this.hasAncestor(descendantId, p.fatherId, visited) ||
+               this.hasAncestor(descendantId, p.motherId, visited);
     }
 
     /**
