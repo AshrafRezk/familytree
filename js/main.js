@@ -92,17 +92,22 @@ class FamilyTreeApp {
      */
     async loadCSVData() {
         try {
-            console.log('Attempting to load CSV file: Family_Tree_with_Birth_Links.csv');
-            const response = await fetch('Family_Tree_with_Birth_Links.csv');
-            
-            if (response.ok) {
-                const csvText = await response.text();
-                console.log('CSV file loaded successfully, size:', csvText.length, 'characters');
-                console.log('First 200 characters of CSV:', csvText.substring(0, 200));
-                return csvText;
-            } else {
-                console.error('Failed to load CSV file. Status:', response.status, response.statusText);
+            const url = 'data/family.csv?v=20240809';
+            console.log('Attempting to load CSV file:', url);
+            const response = await fetch(url);
+            const contentType = response.headers.get('content-type') || '';
+            const csvText = await response.text();
+
+            if (!response.ok || !contentType.includes('text/csv')) {
+                const snippet = csvText.split('\n').slice(0, 3).join('\n');
+                console.error(
+                    `Failed to load CSV ${url} (status ${response.status} ${response.statusText}) - content-type: ${contentType || 'unknown'}\n${snippet}`
+                );
+                return null;
             }
+
+            console.log('CSV file loaded successfully, size:', csvText.length, 'characters');
+            return csvText;
         } catch (error) {
             console.error('Error loading CSV file:', error);
             console.log('Make sure you are running the application from a local server (not file://)');

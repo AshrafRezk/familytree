@@ -1,3 +1,13 @@
+// Register Cytoscape extensions if they are available
+if (typeof window !== 'undefined' && window.cytoscape) {
+  if (window.cytoscapeElk) {
+    window.cytoscape.use(window.cytoscapeElk);
+  }
+  if (window.cytoscapeMinimap) {
+    window.cytoscape.use(window.cytoscapeMinimap);
+  }
+}
+
 class FamilyTreeGL {
   constructor(containerId, data) {
     this.container = document.getElementById(containerId);
@@ -12,6 +22,16 @@ class FamilyTreeGL {
 
     const cached = localStorage.getItem('ft_positions');
     this.cachedPositions = cached ? JSON.parse(cached) : null;
+
+    const elkAvailable = !!window.cytoscapeElk;
+    if (!elkAvailable) {
+      console.error('ELK layout plugin missing; falling back to breadthfirst layout');
+    }
+    const layoutOpts = this.cachedPositions
+      ? { name: 'preset' }
+      : elkAvailable
+        ? { name: 'elk', animate: false, fit: true, worker: true }
+        : { name: 'breadthfirst', animate: false, fit: true };
 
     this.cy = cytoscape({
       container: this.container,
@@ -75,10 +95,9 @@ class FamilyTreeGL {
             'border-color': '#888'
           }
         }
-      ],
-      layout: this.cachedPositions ? { name: 'preset' } : { name: 'elk', animate: false, fit: true, worker: true },
-      wheelSensitivity: 0.15
-    });
+        ],
+        layout: layoutOpts
+      });
 
     if (this.cachedPositions) {
       this.cy.nodes().positions(n => this.cachedPositions[n.id()]);

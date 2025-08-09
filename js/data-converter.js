@@ -69,7 +69,7 @@ class DataConverter {
                 totalAliases: this.aliases.size,
                 totalMarriages: this.marriages.size,
                 lastUpdated: new Date().toISOString(),
-                sourceFile: 'Family_Tree_with_Birth_Links.csv'
+                sourceFile: 'data/family.csv'
             }
         };
         

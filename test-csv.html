@@ -98,7 +98,7 @@
             try {
                 // Test 1: Load CSV file
                 log('Step 1: Attempting to load CSV file...', 'info');
-                const response = await fetch('Family_Tree_with_Birth_Links.csv');
+                const response = await fetch('data/family.csv?v=20240809');
                 
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
