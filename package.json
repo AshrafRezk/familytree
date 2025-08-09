@@ -1,0 +1,8 @@
+{
+  "name": "familytree",
+  "version": "1.0.0",
+  "description": "Family Tree Application",
+  "scripts": {
+    "test": "pytest"
+  }
+}
