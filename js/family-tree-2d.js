@@ -28,6 +28,8 @@ class FamilyTree2D {
     // Setup SVG
     this.setupSVG();
     this.render();
+    // Ensure the entire tree fits within the viewport on initial load
+    this.fitToView();
   }
 
   setupSVG() {
@@ -183,6 +185,25 @@ class FamilyTree2D {
       .attr('transform', d => `translate(${d.x + offsetX}, ${d.y + offsetY})`);
   }
 
+  // Adjust zoom/pan so the whole tree fits in view
+  fitToView(padding = 40) {
+    if (!this.zoomLayer) return;
+    const bbox = this.zoomLayer.node().getBBox();
+    if (bbox.width === 0 || bbox.height === 0) return;
+
+    const scale = Math.min(
+      (this.width - padding) / bbox.width,
+      (this.height - padding) / bbox.height,
+      3
+    );
+
+    const translateX = (this.width - bbox.width * scale) / 2 - bbox.x * scale;
+    const translateY = (this.height - bbox.height * scale) / 2 - bbox.y * scale;
+    const transform = d3.zoomIdentity.translate(translateX, translateY).scale(scale);
+
+    this.svg.call(this.zoomBehavior.transform, transform);
+  }
+
   getNodeFill(person) {
     // Material 3 tones - adapt to theme
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark' || 
@@ -211,6 +232,7 @@ class FamilyTree2D {
     this.height = Math.max(400, h);
     this.svg.attr('viewBox', [0, 0, this.width, this.height].join(' '));
     this.render();
+    this.fitToView();
   }
 
   getAllPeople() {
