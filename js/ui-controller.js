@@ -18,6 +18,10 @@ class UIController {
         this.zoomOutBtn = document.getElementById('zoom-out');
         this.resetViewBtn = document.getElementById('reset-view');
         this.fullscreenBtn = document.getElementById('fullscreen');
+
+        // Generation controls
+        this.generationRange = document.getElementById('generation-range');
+        this.generationValue = document.getElementById('generation-value');
         
         // Header buttons
         this.searchBtn = document.getElementById('search-btn');
@@ -36,6 +40,12 @@ class UIController {
         
         this.setupEventListeners();
         this.setupMaterialComponents();
+
+        if (this.generationRange) {
+            const level = parseInt(this.generationRange.value, 10);
+            if (this.generationValue) this.generationValue.textContent = level;
+            this.familyTree.collapseByGeneration(level);
+        }
     }
 
     /**
@@ -62,9 +72,18 @@ class UIController {
         
         // Click outside to close panels
         document.addEventListener('click', this.handleOutsideClick.bind(this));
-        
+
         // Keyboard shortcuts
         document.addEventListener('keydown', this.handleKeyboard.bind(this));
+
+        // Generation slider
+        if (this.generationRange) {
+            this.generationRange.addEventListener('input', () => {
+                const level = parseInt(this.generationRange.value, 10);
+                if (this.generationValue) this.generationValue.textContent = level;
+                this.familyTree.collapseByGeneration(level);
+            });
+        }
     }
 
     /**
