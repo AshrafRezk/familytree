@@ -14,14 +14,14 @@ class FamilyTreeGL {
     this.cachedPositions = cached ? JSON.parse(cached) : null;
 
     // Ensure Cytoscape extensions are registered before creating the instance
-    let elkAvailable = false;
+    let dagreAvailable = false;
     if (typeof window !== 'undefined' && window.cytoscape) {
-      if (window.cytoscapeElk) {
+      if (window.cytoscapeDagre) {
         try {
-          window.cytoscape.use(window.cytoscapeElk);
-          elkAvailable = true;
+          window.cytoscape.use(window.cytoscapeDagre);
+          dagreAvailable = true;
         } catch (e) {
-          console.error('Failed to register ELK layout plugin:', e);
+          console.error('Failed to register Dagre layout plugin:', e);
         }
       }
       if (window.cytoscapeMinimap) {
@@ -32,13 +32,13 @@ class FamilyTreeGL {
         }
       }
     }
-    if (!elkAvailable) {
-      console.warn('ELK layout plugin missing; falling back to breadthfirst layout');
+    if (!dagreAvailable) {
+      console.warn('Dagre layout plugin missing; falling back to breadthfirst layout');
     }
     const layoutOpts = this.cachedPositions
       ? { name: 'preset' }
-      : elkAvailable
-        ? { name: 'elk', animate: false, fit: true, worker: true }
+      : dagreAvailable
+        ? { name: 'dagre', animate: false, fit: true }
         : { name: 'breadthfirst', animate: false, fit: true };
 
     this.cy = cytoscape({
