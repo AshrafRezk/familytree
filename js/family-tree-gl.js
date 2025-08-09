@@ -5,6 +5,7 @@ class FamilyTreeGL {
 
     this.data = data;
     this.people = new Map(data.people.map(p => [p.id, p]));
+    this.marriages = new Map((data.marriages || []).map(m => [m.id, m]));
     this.onPersonSelected = () => {};
     this.onMarriageSelected = () => {};
     this.generationCache = {};
@@ -61,6 +62,18 @@ class FamilyTreeGL {
             'line-style': 'dashed',
             'target-arrow-shape': 'none'
           }
+        },
+        {
+          selector: 'node.marriage',
+          style: {
+            'shape': 'diamond',
+            'background-color': '#bbb',
+            'label': '',
+            'width': 10,
+            'height': 10,
+            'border-width': 1,
+            'border-color': '#888'
+          }
         }
       ],
       layout: this.cachedPositions ? { name: 'preset' } : { name: 'elk', animate: false, fit: true, worker: true },
@@ -75,8 +88,21 @@ class FamilyTreeGL {
     }
 
     this.cy.on('tap', 'node', evt => {
-      const id = evt.target.id();
-      this.onPersonSelected(this.getPerson(id));
+      const node = evt.target;
+      if (node.hasClass('marriage')) {
+        const marriage = this.getMarriage(node.id());
+        if (marriage) {
+          const data = {
+            spouse1: { person: this.getPerson(marriage.spouse1Id) },
+            spouse2: { person: this.getPerson(marriage.spouse2Id) },
+            children: marriage.children.map(cid => this.getPerson(cid))
+          };
+          this.onMarriageSelected(data);
+        }
+      } else {
+        const id = node.id();
+        this.onPersonSelected(this.getPerson(id));
+      }
     });
 
     this.cy.on('render viewport', () => this.virtualize());
@@ -89,24 +115,30 @@ class FamilyTreeGL {
 
   buildElements() {
     const elements = [];
-    const spouseEdges = new Set();
     for (const p of this.data.people) {
       const label = `${p.name}\n${p.birthYear || ''}-${p.deathYear || ''}`;
       elements.push({ data: { id: p.id, label, generation: this.computeGeneration(p.id) } });
-      if (p.fatherId) {
-        elements.push({ data: { id: `e-${p.fatherId}-${p.id}`, source: p.fatherId, target: p.id } });
+      let hasMarriage = false;
+      if (p.fatherId && p.motherId) {
+        const mid = this.generateMarriageId(p.fatherId, p.motherId);
+        hasMarriage = this.marriages.has(mid);
       }
-      if (p.motherId) {
-        elements.push({ data: { id: `e-${p.motherId}-${p.id}`, source: p.motherId, target: p.id } });
-      }
-      if (p.spouseIds) {
-        for (const sid of p.spouseIds) {
-          const edgeId = `m-${p.id}-${sid}`;
-          if (!spouseEdges.has(edgeId) && !spouseEdges.has(`m-${sid}-${p.id}`)) {
-            elements.push({ data: { id: edgeId, source: p.id, target: sid }, classes: 'spouse' });
-            spouseEdges.add(edgeId);
-          }
+      if (!hasMarriage) {
+        if (p.fatherId) {
+          elements.push({ data: { id: `e-${p.fatherId}-${p.id}`, source: p.fatherId, target: p.id } });
         }
+        if (p.motherId) {
+          elements.push({ data: { id: `e-${p.motherId}-${p.id}`, source: p.motherId, target: p.id } });
+        }
+      }
+    }
+
+    for (const m of this.data.marriages || []) {
+      elements.push({ data: { id: m.id, generation: this.computeMarriageGeneration(m) }, classes: 'marriage' });
+      elements.push({ data: { id: `${m.id}-s1`, source: m.spouse1Id, target: m.id }, classes: 'spouse' });
+      elements.push({ data: { id: `${m.id}-s2`, source: m.spouse2Id, target: m.id }, classes: 'spouse' });
+      for (const cid of m.children) {
+        elements.push({ data: { id: `${m.id}-${cid}`, source: m.id, target: cid } });
       }
     }
     return elements;
@@ -121,6 +153,17 @@ class FamilyTreeGL {
     const gen = Math.max(fatherGen, motherGen);
     this.generationCache[id] = gen;
     return gen;
+  }
+
+  computeMarriageGeneration(marriage) {
+    const g1 = this.computeGeneration(marriage.spouse1Id);
+    const g2 = this.computeGeneration(marriage.spouse2Id);
+    return Math.max(g1, g2);
+  }
+
+  generateMarriageId(s1, s2) {
+    const ids = [s1, s2].sort();
+    return `M-${ids[0]}_${ids[1]}`;
   }
 
   cachePositions() {
@@ -145,6 +188,10 @@ class FamilyTreeGL {
 
   getPerson(id) {
     return this.people.get(id) || null;
+  }
+
+  getMarriage(id) {
+    return this.marriages.get(id) || null;
   }
 
   getAllPeople() {
