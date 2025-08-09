@@ -39,7 +39,7 @@ Visit the live application: [https://soliman-dawood-family-tree.netlify.app](htt
 │   └── admin-panel.js     # Admin functionality
 ├── styles/                 # CSS stylesheets
 │   └── main.css           # Material Design 3 styles
-├── Family_Tree_with_Birth_Links.csv  # Family data
+├── data/family.csv  # Family data
 ├── netlify.toml           # Netlify deployment config
 └── README.md              # This file
 ```
