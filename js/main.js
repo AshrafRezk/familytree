@@ -194,9 +194,9 @@ class FamilyTreeApp {
      * Initialize family tree visualization
      */
     initializeFamilyTree() {
-        const div2d = document.getElementById('family-tree-2d');
-        div2d.style.display = 'block';
-        this.familyTree = new FamilyTree2D('family-tree-2d', this.currentData);
+        const treeDiv = document.getElementById('family-tree-2d');
+        treeDiv.style.display = 'block';
+        this.familyTree = new FamilyTreeGL('family-tree-2d', this.currentData);
 
         // Override event handlers
         this.familyTree.onPersonSelected = (person) => {

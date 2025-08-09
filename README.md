@@ -32,10 +32,10 @@ Visit the live application: [https://soliman-dawood-family-tree.netlify.app](htt
 ├── index.html              # Main application entry point
 ├── js/                     # JavaScript modules
 │   ├── main.js            # Main application logic
-│   ├── family-tree-2d.js  # 2D tree visualization
+│   ├── family-tree-gl.js  # WebGL tree visualization using Cytoscape.js
 │   ├── data-converter.js  # CSV to JSON conversion
 │   ├── ui-controller.js   # UI interactions
-│   ├── cognitive-search.js # Search with transliteration
+│   ├── fuzzy-search.js    # Fuse.js fuzzy search with transliterations
 │   └── admin-panel.js     # Admin functionality
 ├── styles/                 # CSS stylesheets
 │   └── main.css           # Material Design 3 styles
@@ -47,14 +47,13 @@ Visit the live application: [https://soliman-dawood-family-tree.netlify.app](htt
 ## 🎯 Key Features
 
 ### Search & Navigation
-- **Cognitive Search**: Intelligent search with Arabic-English transliteration
-- **Fuzzy Matching**: Find people even with typos or partial names
-- **Real-time Results**: Instant search results as you type
+- **Fuzzy Search**: Fuse.js powered search supporting Arabic/English transliterations
+- **Real-time Results**: Instant search results as you type with parent/spouse disambiguation
 - **Navigation**: Click search results to focus on specific people
 
 ### Visualization
-- **2D Tree Layout**: Clean, hierarchical tree visualization
-- **Smooth Animations**: Material Design 3 quality animations
+- **WebGL Tree Layout**: Cytoscape.js with ELK layout for large datasets
+- **Mini-map**: Quick navigation of large trees
 - **Zoom & Pan**: Interactive navigation through the tree
 - **Responsive Design**: Adapts to different screen sizes
 
