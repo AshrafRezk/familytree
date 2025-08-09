@@ -1,13 +1,3 @@
-// Register Cytoscape extensions if they are available
-if (typeof window !== 'undefined' && window.cytoscape) {
-  if (window.cytoscapeElk) {
-    window.cytoscape.use(window.cytoscapeElk);
-  }
-  if (window.cytoscapeMinimap) {
-    window.cytoscape.use(window.cytoscapeMinimap);
-  }
-}
-
 class FamilyTreeGL {
   constructor(containerId, data) {
     this.container = document.getElementById(containerId);
@@ -23,9 +13,27 @@ class FamilyTreeGL {
     const cached = localStorage.getItem('ft_positions');
     this.cachedPositions = cached ? JSON.parse(cached) : null;
 
-    const elkAvailable = !!window.cytoscapeElk;
+    // Ensure Cytoscape extensions are registered before creating the instance
+    let elkAvailable = false;
+    if (typeof window !== 'undefined' && window.cytoscape) {
+      if (window.cytoscapeElk) {
+        try {
+          window.cytoscape.use(window.cytoscapeElk);
+          elkAvailable = true;
+        } catch (e) {
+          console.error('Failed to register ELK layout plugin:', e);
+        }
+      }
+      if (window.cytoscapeMinimap) {
+        try {
+          window.cytoscape.use(window.cytoscapeMinimap);
+        } catch (e) {
+          console.error('Failed to register minimap plugin:', e);
+        }
+      }
+    }
     if (!elkAvailable) {
-      console.error('ELK layout plugin missing; falling back to breadthfirst layout');
+      console.warn('ELK layout plugin missing; falling back to breadthfirst layout');
     }
     const layoutOpts = this.cachedPositions
       ? { name: 'preset' }
